@@ -40,6 +40,8 @@ ATrackedVehicle::ATrackedVehicle()
 	LookRight->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LookLeft->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 
+	PreCalculateMomentOfInteria();
+
 }
 
 // Called when the game starts or when spawned
@@ -61,6 +63,22 @@ void ATrackedVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ATrackedVehicle::PreCalculateMomentOfInteria()
+{
+	// 计算转动惯量
+	MomentInertia = (SprocketMassKg * 0.5 + TrackMassKg) * SprocketRadiusCm * SprocketRadiusCm;
+}
+
+void ATrackedVehicle::ConstructSuspension()
+{
+	for each (UStaticMeshComponent* var in SuspensionHandleRight)
+	{
+		//SuspensionsInternalRight.Add(FSuspensionInternalProcessing(
+		//))
+		//var->GetRelativeTransform()
+	}
 }
 
 void ATrackedVehicle::AddWheelForce(UPrimitiveComponent* Wheel, FVector Force)
@@ -172,4 +190,49 @@ void ATrackedVehicle::UpdateThrottle()
 
 	UKismetMathLibrary::Clamp(GetWorld()->DeltaTimeSeconds * ThrottleIncrement + Throttle, 0, 1);
 }
+
+void ATrackedVehicle::UpdateWheelsVelocity()
+{
+	// 计算力矩
+	TrackRightTorque = DriveRightTorque + TrackFrictionTorqueRight + TrackRollingFrictionTorqueRight;
+	TrackLeftTorque = DriveLeftTorque + TrackFrictionTorqueLeft + TrackRollingFrictionTorqueLeft;
+
+	// 计算角速度
+	TrackRightAngularVelocity = ApplyBrake(TrackRightTorque / MomentInertia * GetWorld()->DeltaTimeSeconds + TrackRightAngularVelocity, BrakeRatioRight);
+	TrackLeftAngularVelocity = ApplyBrake(TrackLeftTorque / MomentInertia * GetWorld()->DeltaTimeSeconds + TrackLeftAngularVelocity, BrakeRatioLeft);
+	
+	// 计算线速度
+	TrackRightLinearVelocity = TrackRightAngularVelocity * SprocketRadiusCm;
+	TrackLeftLinearVelocity = TrackLeftAngularVelocity * SprocketRadiusCm;
+
+}
+
+float ATrackedVehicle::ApplyBrake(float AngularVelocity, float BrakeRatio)
+{
+	return 0.0;
+}
+
+void ATrackedVehicle::UpdateAxlsVelocity()
+{
+	AxisAngularVelocity = (UKismetMathLibrary::Abs(TrackRightAngularVelocity) + UKismetMathLibrary::Abs(TrackLeftAngularVelocity)) / 2;
+}
+
+void ATrackedVehicle::CalculateEngineAndUpdateDrive()
+{
+	EngineTorque = GetEngineTorque(GetEngineRPMFromAxls(AxisAngularVelocity)) * Throttle;
+	DriveAxlsTorque = GetGearBoxTorque(EngineTorque);
+
+	DriveRightTorque = TrackTorqueTransferRight * DriveAxlsTorque;
+	DriveLeftTorque = TrackTorqueTransferLeft * DriveAxlsTorque;
+
+	DriveRightForce = GetActorForwardVector() * DriveRightTorque / SprocketRadiusCm;
+	DriveLeftForce = GetActorForwardVector() * DriveLeftTorque / SprocketRadiusCm;
+}
+
+float ATrackedVehicle::GetEngineRPMFromAxls(float AxlsAngularVelocity)
+{
+	return 0.0f;
+}
+
+
 

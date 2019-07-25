@@ -49,6 +49,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void PreCalculateMomentOfInteria();
+	void ConstructSuspension();
+
 	void AddWheelForce(UPrimitiveComponent* Wheel, FVector Force);
 
 	void AddWheelForceImproved(UPrimitiveComponent* Wheel, FVector Force, FHitResult HitStruct, UPhysicsConstraintComponent* Suspension);
@@ -61,6 +64,20 @@ public:
 	void AddGravity();
 
 	void UpdateThrottle();
+
+	void UpdateWheelsVelocity();
+
+	// 刹车
+	float ApplyBrake(float AngularVelocity, float BrakeRatio);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	float GetEngineTorque(float RevolutionPerMinute);
+
+	void UpdateAxlsVelocity();
+
+	void CalculateEngineAndUpdateDrive();
+	float GetEngineRPMFromAxls(float AxlsAngularVelocity);
+	float GetGearBoxTorque(float EngineTorque);
 
 private:
 	// UPROPERTY(BlueprintCallable)
@@ -82,12 +99,54 @@ private:
 	float WheelLeftCoefficient;
 	float WheelForwardCoefficient;
 
-	float TrackTorqueTransferRight;
-	float TrackTorqueTransferLeft;
-
 	float Throttle;
 	float ThrottleIncrement;
 
+	float AxisAngularVelocity;
+
+	// 力矩相关
+	float TrackTorqueTransferRight;
+	float TrackTorqueTransferLeft;
+
+	float TrackRightTorque;
+	float TrackLeftTorque;
+
+	float DriveRightTorque;
+	float DriveLeftTorque;
+	float DriveAxlsTorque;
+
+	float TrackFrictionTorqueRight;
+	float TrackFrictionTorqueLeft;
+	float TrackRollingFrictionTorqueRight;
+	float TrackRollingFrictionTorqueLeft;
+
+	float EngineTorque;
+
+	// 受力有关
+	FVector DriveRightForce;
+	FVector DriveLeftForce;
+
+	// 转动惯量
+	float MomentInertia;
+
+	// 刹车有关
+	float BrakeRatioRight;
+	float BrakeRatioLeft;
+
+	// 齿轮有关
+	float SprocketMassKg = 65.f;
+	float SprocketRadiusCm = 25.f;
+
+	// 履带有关
+	float TrackMassKg = 600.f;
+
+	// Suspension
+	TArray<UStaticMeshComponent*> SuspensionHandleRight;
+	TArray<UStaticMeshComponent*> SuspensionHandleLeft;
+	TArray<FSuspensionInternalProcessing> SuspensionsInternalRight;
+	TArray<FSuspensionInternalProcessing> SuspensionsInternalLeft;
+	TArray<FSuspensionSetUp> SuspensionSetUpRight;
+	TArray<FSuspensionSetUp> SuspensionSetUpLeft;
 
 	int32 index;
 

@@ -7,7 +7,11 @@
 		{
 			"Name": "Battle_Tank",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject"
+			]
 		}
 	]
 }

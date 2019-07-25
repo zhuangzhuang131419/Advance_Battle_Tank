@@ -28,7 +28,7 @@ struct FSuspensionInternalProcessing
 	FVector RootLoc;
 	FRotator RootRot;
 	float Length = 100;
-	float Radis = 100;
+	float Radius = 100;
 	float Stiffness = 0.5;
 	float Damping = 0.5;
 	float PreviousLength;
@@ -37,6 +37,17 @@ struct FSuspensionInternalProcessing
 	FVector WheelCollisionNormal;
 	bool Engaged = false;
 	EPhysicalSurface HitMaterial;
+
+	FSuspensionInternalProcessing(FVector RootLoc, FRotator RootRot, float Length, float Radius, float Stiffness, float Damping, float PreviousLength)
+	{
+		this->RootLoc = RootLoc;
+		this->RootRot = RootRot;
+		this->Length = Length;
+		this->Radius = Radius;
+		this->Stiffness = Stiffness;
+		this->Damping = Damping;
+		this->PreviousLength = PreviousLength;
+	}
 };
 
 USTRUCT(BlueprintType)
