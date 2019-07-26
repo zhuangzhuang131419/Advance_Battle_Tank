@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/EngineTypes.h"
 #include "GeneralTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -38,7 +39,9 @@ struct FSuspensionInternalProcessing
 	bool Engaged = false;
 	EPhysicalSurface HitMaterial;
 
-	FSuspensionInternalProcessing(FVector RootLoc, FRotator RootRot, float Length, float Radius, float Stiffness, float Damping, float PreviousLength)
+	FSuspensionInternalProcessing(){}
+
+	FSuspensionInternalProcessing(FVector RootLoc, FRotator RootRot, float Length, float Radius, float Stiffness, float Damping)
 	{
 		this->RootLoc = RootLoc;
 		this->RootRot = RootRot;
@@ -46,7 +49,6 @@ struct FSuspensionInternalProcessing
 		this->Radius = Radius;
 		this->Stiffness = Stiffness;
 		this->Damping = Damping;
-		this->PreviousLength = PreviousLength;
 	}
 };
 
@@ -61,14 +63,14 @@ struct FSuspensionSetUp
 	float CollisionRadius = 34;
 	float StiffnessForce = 4000000;
 	float DampingForce = 4000;
+
+	FSuspensionSetUp(){}
 };
 
 /**
  * 
  */
-UCLASS()
-class BATTLE_TANK_API UGeneralTypes
+class BATTLE_TANK_API GeneralTypes
 {
-	
 	
 };
