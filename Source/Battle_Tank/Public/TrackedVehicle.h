@@ -10,8 +10,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/PrimitiveComponent.h"
-#include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "Components/SplineComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Math/Transform.h"
 #include "GeneralTypes.h"
 #include "TrackedVehicle.generated.h"
@@ -25,18 +27,31 @@ public:
 	// Sets default values for this pawn's properties
 	ATrackedVehicle();
 
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UStaticMeshComponent* Body;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UArrowComponent* COM;
-	USkeletalMeshComponent* ThreadR;
-	USkeletalMeshComponent* ThreadL;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	USkeletalMeshComponent* TreadR;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	USkeletalMeshComponent* TreadL;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UStaticMeshComponent* WheelSweep;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UStaticMeshComponent* Turrent;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* MainCam;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UCameraComponent* Camera;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USkeletalMeshComponent* Cannon;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* TurrentCam;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* Front;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* LookRight;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* LookLeft;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -54,6 +69,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Construct
+	void BuildTrackSpline(USplineComponent* RightSpline, USplineComponent* LeftSpline, UInstancedStaticMeshComponent* TreadsRight, UInstancedStaticMeshComponent* TreadsLeft);
 	void PreCalculateMomentOfInteria();
 	void ConstructSuspension();
 	void VisualizeCenterOfMass();
@@ -66,28 +82,35 @@ public:
 	FVector GetVelocityAtPoint(FVector PointLoc);
 	bool PutToSleep();
 	FVector GetVelocityAtPointWorld(FVector PointLoc);
+	void GetTotalSuspensionForce();
 	void AddGravity();
+	void PositionAndAnimateDriveWheels(UStaticMeshComponent* WheelComponent, FSuspensionInternalProcessing SuspensionSet, int32 SuspensionIndex, ESide side, bool FlipAnimation180Degrees);
 	void UpdateThrottle();
 	void UpdateWheelsVelocity();
-
+	float GetWheelAccelerationFromEngineTorque(float Torque);
+	void ApplyDrag();
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetEngineTorque(float RevolutionPerMinute);
-
+	virtual void AnimateWheels();
 	void UpdateAxlsVelocity();
 
 	void CalculateEngineAndUpdateDrive();
 	void CountFrictionContactPoint(TArray<FSuspensionInternalProcessing> SuspSide);
 	void ApplyDriveForceAndGetFrictionForceOnSide(TArray<FSuspensionInternalProcessing> SuspensionSide, FVector DriveForceSide, float TrackLinearVelocitySide, OUT float TotalFrictionTorqueSide, OUT float TotalRollingFrictionToqueSide);
-	float GetEngineRPMFromAxls(float AxlsAngularVelocity);
 	float GetGearBoxTorque(float EngineTorque);
+	float GetEngineRPMFromAxls(float AxlsAngularVelocity);
 	// 刹车
 	float ApplyBrake(float AngularVelocity, float BrakeRatio);
-
+	virtual void AnimateTreadsSpline();
+	void AnimateSprocketOrIdler(UStaticMeshComponent* SprocketOrIdlerComponnet, float TrackAngularVelocity, bool FlipAnimation180Degrees);
+	void ShowSuspensionHandles();
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnDust(TArray<FSuspensionInternalProcessing>& SuspensionSide, float TrackLinearVelocity);
 
 	bool TraceForSuspension(FVector Start, FVector End, float Radius, OUT FVector Location, OUT FVector ImpactPoint, OUT FVector ImpactNormal, OUT EPhysicalSurface SufaceType, OUT UPrimitiveComponent* Component);
-
+	void AnimateTreadsMaterial();
+	void AnimateTreadsInstancedMesh(USplineComponent* RightSpline, USplineComponent* LeftSpline, UInstancedStaticMeshComponent* TreadsRight, UInstancedStaticMeshComponent* ThreadsLeft);
+	void AnimateTreadsSplineControlPoints(UStaticMeshComponent* WheelMeshComponent, USplineComponent* ThreadSplineComponent, int32 BottomCPIndex, int32 TopCPIndex, TArray<FVector> SplineCoordinates, TArray<FSuspensionSetUp> SuspensionSetUp, int32 SuspensionIndex);
 	void ShiftGear(int32 ShiftUpOrDown);
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -97,15 +120,11 @@ public:
 	void SetRemoveAutoGearBoxTimer();
 
 	void GetThrottleInputForAutoHandling(float InputVehicleLeftRight, float InputVehicleForwardBackward);
-	// void GetGearBoxInfo(OUT int32 GearNum, OUT bool ReverseGear, OUT bool Automatic);
+	void GetGearBoxInfo(OUT int32 GearNum, OUT bool ReverseGear, OUT bool Automatic);
 	void GetMuFromFrictionElipse(FVector VelocityDirectionNormalized, FVector ForwardVector, float Mu_X_Static, float Mu_Y_Static, float Mu_X_Kinetic, float Mu_Y_Kinetic, OUT float Mu_Static, OUT float Mu_Kinetic);
 
-private:
-	// UPROPERTY(BlueprintCallable)
 	UPrimitiveComponent* WheelLoc;
 
-
-	
 	EPhysicalSurface PhysicMaterial;
 
 	// Collision相关
@@ -218,6 +237,7 @@ private:
 	bool SuspensionEngaged;
 	FVector SuspensionForce;
 	float SuspensionTargetVelocity;
+	FVector TotalSuspensionForce;
 
 	// Gear齿轮相关
 	int32 currentGear = 1;
@@ -238,6 +258,20 @@ private:
 
 	int32 index;
 
+	// Tread相关
+	float TreadHalfThickness = 2;
+	float TreadLength = 972.5f;
+	float TreadUVTiles = 32.5f;
+	float TreadUVOffsetRight;
+	float TreadUVOffsetLeft;
+	float TreadMeshOffsetRight;
+	float TreadMeshOffsetLeft;
+	UMaterialInstanceDynamic* TreadMaterialRight;
+	UMaterialInstanceDynamic* TreadMaterialLeft;
+	UInstancedStaticMeshComponent* TreadsRightLoc;
+	UInstancedStaticMeshComponent* TreadsLeftLoc;
+	int32 TreadsLastIndex = 63;
+	float TreadsOnSide = 64;
 
 
 	// Sleep相关
@@ -245,6 +279,74 @@ private:
 	float SleepDelayTimer;
 	float SleepTimerSeconds = 2;
 
+	// Spline相关
+	TArray<FVector> SplineCoordinatesRight = {
+		FVector(211, 109, 88),
+		FVector(230, 109, 77.5),
+		FVector(224.5, 109, 46.5),
+		FVector(145, 109, 5),
+		FVector(77, 109, 5),
+		FVector(10, 109, 5),
+		FVector(-56, 109, 5),
+		FVector(-127, 109, 5),
+		FVector(-210, 109, 50),
+		FVector(-180, 109, 72.5),
+		FVector(-127, 109, 69.5),
+		FVector(-56, 109, 69.5),
+		FVector(10, 109, 69.5),
+		FVector(77, 109, 69.5),
+		FVector(145, 109, 69.5),
+	};
+
+	TArray<FVector> SplineCoordinatesLeft = {
+		FVector(211, -109, 88),
+		FVector(230, -109, 77.5),
+		FVector(224.5, -109, 46.5),
+		FVector(145, -109, 5),
+		FVector(77, -109, 5),
+		FVector(10, -109, 5),
+		FVector(-56, -109, 5),
+		FVector(-127, -109, 5),
+		FVector(-210, -109, 50),
+		FVector(-180, -109, 72.5),
+		FVector(-127, -109, 69.5),
+		FVector(-56, -109, 69.5),
+		FVector(10, -109, 69.5),
+		FVector(77, -109, 69.5),
+		FVector(145, -109, 69.5),
+		
+	};
+
+	TArray<FVector> SplineTangents = {
+		FVector(25, 0, 0),
+		FVector(17.5, 0, -22.5),
+		FVector(-25, 0, -22.5),
+		FVector(-74.5, 0, 0),
+		FVector(-67.5, 0, 0),
+		FVector(-66.5, 0, 0),
+		FVector(-66.5, 0, 0),
+		FVector(-80, 0, 0),
+		FVector(0, 0, 80),
+		FVector(0, 0, 0),
+		FVector(100, 0, 0),
+		FVector(68.5, 0, 0),
+		FVector(66.5, 0, 0),
+		FVector(67.5, 0, 0),
+		FVector(55, 0, 0)
+	};
+
+	USplineComponent* SplineRightLoc;
+	USplineComponent* SplineLeftLoc;
+	float SplineLengthAtConstruction;
+
+	// Environment Config
+	float AirDensity = 1.29f;
+	
+	// Drag相关
+	float DragSurfaceArea = 10.f;
+	float DragCoefficient = 0.8f;
+
+private:
 	void AddSuspensionForce();
 	void PushSuspesionToEnvironment();
 	void Forward();
