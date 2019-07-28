@@ -20,6 +20,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 public:
 	// 主动轮： 动力输出部件，驱动履带进行转动，带动坦克行驶，转向和刹车等功能也通过主动轮进行差速和制动操作来实现
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)

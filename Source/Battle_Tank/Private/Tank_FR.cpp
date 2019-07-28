@@ -5,27 +5,6 @@
 
 ATank_FR::ATank_FR()
 {
-
-	//for (size_t i = 0; i < wheelsNum; i++)
-	//{
-	//	RightSuspensions.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*(FString(("RightSuspension") + FString::FromInt(i))))));
-	//}
-
-	//for (size_t i = 0; i < wheelsNum; i++)
-	//{
-	//	LeftSuspensions.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*(FString(("LeftSuspension") + FString::FromInt(i))))));
-	//}
-
-	//for (size_t i = 0; i < wheelsNum; i++)
-	//{
-	//	RightRoadWheels.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*(FString(("RightRoadWheels") + FString::FromInt(i))))));
-	//}
-
-	//for (size_t i = 0; i < wheelsNum; i++)
-	//{
-	//	LeftRoadWheels.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName(*(FString(("LeftRoadWheels") + FString::FromInt(i))))));
-	//}
-
 	RightSprocket = CreateDefaultSubobject<UStaticMeshComponent>(FName("RightSprocket"));
 	LeftSprocket = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeftSprocket"));
 	RightIdler = CreateDefaultSubobject<UStaticMeshComponent>(FName("RightIdler"));
@@ -80,6 +59,11 @@ void ATank_FR::BeginPlay()
 			}
 		}
 	}
+}
+
+void ATank_FR::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ATank_FR::AnimateWheels()

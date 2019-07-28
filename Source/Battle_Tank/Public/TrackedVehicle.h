@@ -55,7 +55,7 @@ public:
 	USpringArmComponent* LookLeft;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool SleepMode;
+	bool SleepMode = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -123,6 +123,143 @@ public:
 	void GetGearBoxInfo(OUT int32 GearNum, OUT bool ReverseGear, OUT bool Automatic);
 	void GetMuFromFrictionElipse(FVector VelocityDirectionNormalized, FVector ForwardVector, float Mu_X_Static, float Mu_Y_Static, float Mu_X_Kinetic, float Mu_Y_Kinetic, OUT float Mu_Static, OUT float Mu_Kinetic);
 
+private:
+	void AddSuspensionForce();
+	void PushSuspesionToEnvironment();
+	void Forward();
+	void Brake();
+	void Backward();
+	void UpdateCoefficient();
+
+public:
+	// 履带配置
+	UPROPERTY(EditDefaultsOnly, Category = "Track")
+	float TrackMassKg = 600.f;
+
+	// 主动轮配置
+	UPROPERTY(EditDefaultsOnly, Category = "Sprocket")
+	float SprocketMassKg = 65.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Sprocket")
+	float SprocketRadiusCm = 25.f;
+
+	// 环境配置
+	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	float AirDensity = 1.29f;
+
+	// Drag相关
+	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	float DragSurfaceArea = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	float DragCoefficient = 0.8f;
+
+	// Gear配置
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	TArray<float> GearRatios = { 1.15, 2.15, 4.35, 0, 3.81, 1.93, 1 };
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	float DifferentialRatio = 3.5; // 差速比
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	float TransmissionEfficiency = 0.9; // 能量传递效率
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	bool AutoGearBox;
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	float GearUpShiftPrc = 0.9;
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	float GearDownShiftPrc = 0.9;
+	UPROPERTY(EditDefaultsOnly, Category = "Gear")
+	float EngineExtraPowerRatio;
+
+	// Torque
+	UPROPERTY(EditDefaultsOnly, Category = "Torque")
+	UCurveFloat* EngineTorqueCurve;
+
+	// 摩擦力
+	UPROPERTY(EditDefaultsOnly, Category = "Friction")
+	float MuXStatic = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "Friction")
+	float MuYStatic = 0.85;
+	UPROPERTY(EditDefaultsOnly, Category = "Friction")
+	float MuXKinetic = 0.5;
+	UPROPERTY(EditDefaultsOnly, Category = "Friction")
+	float MuYKinetic = 0.45;
+
+	// Spline
+	UPROPERTY(EditDefaultsOnly, Category = "Spline")
+	TArray<FVector> SplineCoordinatesRight = {
+		FVector(211, 109, 88),
+		FVector(230, 109, 77.5),
+		FVector(224.5, 109, 46.5),
+		FVector(145, 109, 5),
+		FVector(77, 109, 5),
+		FVector(10, 109, 5),
+		FVector(-56, 109, 5),
+		FVector(-127, 109, 5),
+		FVector(-210, 109, 50),
+		FVector(-180, 109, 72.5),
+		FVector(-127, 109, 69.5),
+		FVector(-56, 109, 69.5),
+		FVector(10, 109, 69.5),
+		FVector(77, 109, 69.5),
+		FVector(145, 109, 69.5),
+	};
+	UPROPERTY(EditDefaultsOnly, Category = "Spline")
+	TArray<FVector> SplineCoordinatesLeft = {
+		FVector(211, -109, 88),
+		FVector(230, -109, 77.5),
+		FVector(224.5, -109, 46.5),
+		FVector(145, -109, 5),
+		FVector(77, -109, 5),
+		FVector(10, -109, 5),
+		FVector(-56, -109, 5),
+		FVector(-127, -109, 5),
+		FVector(-210, -109, 50),
+		FVector(-180, -109, 72.5),
+		FVector(-127, -109, 69.5),
+		FVector(-56, -109, 69.5),
+		FVector(10, -109, 69.5),
+		FVector(77, -109, 69.5),
+		FVector(145, -109, 69.5),
+
+	};
+	UPROPERTY(EditDefaultsOnly, Category = "Spline")
+	TArray<FVector> SplineTangents = {
+		FVector(25, 0, 0),
+		FVector(17.5, 0, -22.5),
+		FVector(-25, 0, -22.5),
+		FVector(-74.5, 0, 0),
+		FVector(-67.5, 0, 0),
+		FVector(-66.5, 0, 0),
+		FVector(-66.5, 0, 0),
+		FVector(-80, 0, 0),
+		FVector(0, 0, 80),
+		FVector(0, 0, 0),
+		FVector(100, 0, 0),
+		FVector(68.5, 0, 0),
+		FVector(66.5, 0, 0),
+		FVector(67.5, 0, 0),
+		FVector(55, 0, 0)
+	};
+
+	// Tread
+	UPROPERTY(EditDefaultsOnly, Category = "Tread")
+	float TreadUVTiles = 32.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Tread")
+	float TreadsOnSide = 64;
+	UPROPERTY(EditDefaultsOnly, Category = "Tread")
+	float TreadHalfThickness = 2;
+
+
+	// Spline
+	UPROPERTY(EditDefaultsOnly, Category = "Spline")
+	TArray<FSuspensionSetUp> SuspensionSetUpRight;
+	UPROPERTY(EditDefaultsOnly, Category = "Spline")
+	TArray<FSuspensionSetUp> SuspensionSetUpLeft;
+
+	// Sleep
+	UPROPERTY(EditDefaultsOnly, Category = "Sleep")
+	float SleepVelocity = 5;
+	UPROPERTY(EditDefaultsOnly, Category = "Sleep")
+	float SleepTimerSeconds = 2;
+
 	UPrimitiveComponent* WheelLoc;
 
 	EPhysicalSurface PhysicMaterial;
@@ -159,10 +296,7 @@ public:
 
 	// Friction相关
 	float TotalNumFrictionPoints;
-	float MuXStatic = 1;
-	float MuYStatic = 0.85;
-	float MuXKinetic = 0.5;
-	float MuYKinetic = 0.45;
+	
 	float MuStatic;
 	float MuKinetic;
 
@@ -211,20 +345,16 @@ public:
 	float BrakeRatioLeft;
 	float BrakeForce = 30.f;
 
-	// 齿轮有关
-	float SprocketMassKg = 65.f;
-	float SprocketRadiusCm = 25.f;
 
-	// 履带有关
-	float TrackMassKg = 600.f;
+
+	
 
 	// Suspension
 	TArray<UStaticMeshComponent*> SuspensionHandleRight;
 	TArray<UStaticMeshComponent*> SuspensionHandleLeft;
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalRight;
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalLeft;
-	TArray<FSuspensionSetUp> SuspensionSetUpRight;
-	TArray<FSuspensionSetUp> SuspensionSetUpLeft;
+	
 	float SuspensionLength;
 	float SuspensionNewLength;
 	float SuspensionStiffness;
@@ -242,15 +372,15 @@ public:
 	// Gear齿轮相关
 	int32 currentGear = 1;
 	int32 NeutralGearIndex = 0;
-	TArray<float> GearRatios = { 1.15, 2.15, 4.35, 0, 3.81, 1.93, 1 };
+	
 
-	float DifferentialRatio = 3.5; // 差速比
-	float TransmissionEfficiency = 0.9; // 能量传递效率
+	
+
 	bool ReverseGear;
-	bool AutoGearBox;
+
 
 	float LastAutoGearBoxAxisCheck;
-	float EngineExtraPowerRatio;
+
 
 	// Axis相关
 	float AxisInputValue;
@@ -259,9 +389,7 @@ public:
 	int32 index;
 
 	// Tread相关
-	float TreadHalfThickness = 2;
-	float TreadLength = 972.5f;
-	float TreadUVTiles = 32.5f;
+
 	float TreadUVOffsetRight;
 	float TreadUVOffsetLeft;
 	float TreadMeshOffsetRight;
@@ -271,86 +399,22 @@ public:
 	UInstancedStaticMeshComponent* TreadsRightLoc;
 	UInstancedStaticMeshComponent* TreadsLeftLoc;
 	int32 TreadsLastIndex = 63;
-	float TreadsOnSide = 64;
+	float TreadLength = 972.5f;
 
 
-	// Sleep相关
-	float SleepVelocity = 5;
-	float SleepDelayTimer;
-	float SleepTimerSeconds = 2;
+
+	
 
 	// Spline相关
-	TArray<FVector> SplineCoordinatesRight = {
-		FVector(211, 109, 88),
-		FVector(230, 109, 77.5),
-		FVector(224.5, 109, 46.5),
-		FVector(145, 109, 5),
-		FVector(77, 109, 5),
-		FVector(10, 109, 5),
-		FVector(-56, 109, 5),
-		FVector(-127, 109, 5),
-		FVector(-210, 109, 50),
-		FVector(-180, 109, 72.5),
-		FVector(-127, 109, 69.5),
-		FVector(-56, 109, 69.5),
-		FVector(10, 109, 69.5),
-		FVector(77, 109, 69.5),
-		FVector(145, 109, 69.5),
-	};
-
-	TArray<FVector> SplineCoordinatesLeft = {
-		FVector(211, -109, 88),
-		FVector(230, -109, 77.5),
-		FVector(224.5, -109, 46.5),
-		FVector(145, -109, 5),
-		FVector(77, -109, 5),
-		FVector(10, -109, 5),
-		FVector(-56, -109, 5),
-		FVector(-127, -109, 5),
-		FVector(-210, -109, 50),
-		FVector(-180, -109, 72.5),
-		FVector(-127, -109, 69.5),
-		FVector(-56, -109, 69.5),
-		FVector(10, -109, 69.5),
-		FVector(77, -109, 69.5),
-		FVector(145, -109, 69.5),
-		
-	};
-
-	TArray<FVector> SplineTangents = {
-		FVector(25, 0, 0),
-		FVector(17.5, 0, -22.5),
-		FVector(-25, 0, -22.5),
-		FVector(-74.5, 0, 0),
-		FVector(-67.5, 0, 0),
-		FVector(-66.5, 0, 0),
-		FVector(-66.5, 0, 0),
-		FVector(-80, 0, 0),
-		FVector(0, 0, 80),
-		FVector(0, 0, 0),
-		FVector(100, 0, 0),
-		FVector(68.5, 0, 0),
-		FVector(66.5, 0, 0),
-		FVector(67.5, 0, 0),
-		FVector(55, 0, 0)
-	};
+	
 
 	USplineComponent* SplineRightLoc;
 	USplineComponent* SplineLeftLoc;
 	float SplineLengthAtConstruction;
 
-	// Environment Config
-	float AirDensity = 1.29f;
 	
-	// Drag相关
-	float DragSurfaceArea = 10.f;
-	float DragCoefficient = 0.8f;
+	// sleep
+	float SleepDelayTimer;
 
-private:
-	void AddSuspensionForce();
-	void PushSuspesionToEnvironment();
-	void Forward();
-	void Brake();
-	void Backward();
-	void UpdateCoefficient();
+
 };
