@@ -78,3 +78,10 @@ DerivedDataCache/*
 
 # StarterContent
 Content/StarterContent/*
+Content/Animations/*
+Content/Curves/*
+Content/DemoContent/*
+Content/Materials/*
+Content/Meshes/*
+Content/Particles/*
+Content/Textures/*
