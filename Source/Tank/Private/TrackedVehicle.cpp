@@ -11,7 +11,7 @@
 // Sets default values
 ATrackedVehicle::ATrackedVehicle()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Body = CreateDefaultSubobject<UStaticMeshComponent>(FName("Body"));
@@ -42,15 +42,13 @@ ATrackedVehicle::ATrackedVehicle()
 	LookLeft->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 
 	PreCalculateMomentOfInteria();
-
 }
 
 // Called when the game starts or when spawned
 void ATrackedVehicle::BeginPlay()
 {
 	Super::BeginPlay();
-
-
+	
 }
 
 // Called every frame
@@ -89,6 +87,7 @@ void ATrackedVehicle::Tick(float DeltaTime)
 
 		TotalNumFrictionPoints = 0;
 	}
+
 }
 
 // Called to bind functionality to input
@@ -98,7 +97,7 @@ void ATrackedVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ATrackedVehicle::BuildTrackSpline(USplineComponent * RightSpline, USplineComponent * LeftSpline, UInstancedStaticMeshComponent * TreadsRight, UInstancedStaticMeshComponent * TreadsLeft)
+void ATrackedVehicle::BuildTrackSpline(USplineComponent* RightSpline, USplineComponent* LeftSpline, UInstancedStaticMeshComponent* TreadsRight, UInstancedStaticMeshComponent* TreadsLeft)
 {
 	SplineRightLoc = RightSpline;
 	SplineLeftLoc = LeftSpline;
@@ -413,7 +412,7 @@ void ATrackedVehicle::AddGravity()
 	Body->AddForce(Body->GetMass() * FVector(0, 0, -980));
 }
 
-void ATrackedVehicle::PositionAndAnimateDriveWheels(UStaticMeshComponent * WheelComponent, FSuspensionInternalProcessing SuspensionSet, int32 SuspensionIndex, ESide side, bool FlipAnimation180Degrees)
+void ATrackedVehicle::PositionAndAnimateDriveWheels(UStaticMeshComponent* WheelComponent, FSuspensionInternalProcessing SuspensionSet, int32 SuspensionIndex, ESide side, bool FlipAnimation180Degrees)
 {
 	WheelComponent->SetWorldLocation(
 		UKismetMathLibrary::TransformLocation(
@@ -641,7 +640,7 @@ void ATrackedVehicle::AnimateTreadsSpline()
 	// Overwritten by subclass
 }
 
-void ATrackedVehicle::AnimateSprocketOrIdler(UStaticMeshComponent * SprocketOrIdlerComponnet, float TrackAngularVelocity, bool FlipAnimation180Degrees)
+void ATrackedVehicle::AnimateSprocketOrIdler(UStaticMeshComponent* SprocketOrIdlerComponnet, float TrackAngularVelocity, bool FlipAnimation180Degrees)
 {
 	FRotator localRotator;
 	if (FlipAnimation180Degrees)
@@ -668,7 +667,7 @@ void ATrackedVehicle::ShowSuspensionHandles()
 	}
 }
 
-bool ATrackedVehicle::TraceForSuspension(FVector Start, FVector End, float Radius, OUT FVector Location, OUT FVector ImpactPoint, OUT FVector ImpactNormal, OUT EPhysicalSurface SufaceType, OUT UPrimitiveComponent * Component)
+bool ATrackedVehicle::TraceForSuspension(FVector Start, FVector End, float Radius, OUT FVector Location, OUT FVector ImpactPoint, OUT FVector ImpactNormal, OUT EPhysicalSurface SufaceType, OUT UPrimitiveComponent* Component)
 {
 	FHitResult HitResult;
 	GetWorld()->SweepSingleByChannel(
@@ -700,7 +699,7 @@ void ATrackedVehicle::AnimateTreadsMaterial()
 	TreadMaterialLeft->SetScalarParameterValue(FName("UVOffset"), TreadUVOffsetLeft);
 }
 
-void ATrackedVehicle::AnimateTreadsInstancedMesh(USplineComponent * RightSpline, USplineComponent * LeftSpline, UInstancedStaticMeshComponent * TreadsRight, UInstancedStaticMeshComponent * TreadsLeft)
+void ATrackedVehicle::AnimateTreadsInstancedMesh(USplineComponent* RightSpline, USplineComponent* LeftSpline, UInstancedStaticMeshComponent* TreadsRight, UInstancedStaticMeshComponent* TreadsLeft)
 {
 	SplineLeftLoc = LeftSpline;
 	SplineRightLoc = RightSpline;
@@ -792,7 +791,7 @@ void ATrackedVehicle::AnimateTreadsInstancedMesh(USplineComponent * RightSpline,
 	}
 }
 
-void ATrackedVehicle::AnimateTreadsSplineControlPoints(UStaticMeshComponent * WheelMeshComponent, USplineComponent * TreadSplineComponent, int32 BottomCPIndex, int32 TopCPIndex, TArray<FVector> SplineCoordinates, TArray<FSuspensionSetUp> SuspensionSetUp, int32 SuspensionIndex)
+void ATrackedVehicle::AnimateTreadsSplineControlPoints(UStaticMeshComponent* WheelMeshComponent, USplineComponent* TreadSplineComponent, int32 BottomCPIndex, int32 TopCPIndex, TArray<FVector> SplineCoordinates, TArray<FSuspensionSetUp> SuspensionSetUp, int32 SuspensionIndex)
 {
 	TreadSplineComponent->SetLocationAtSplinePoint(
 		BottomCPIndex,
@@ -960,7 +959,4 @@ void ATrackedVehicle::UpdateCoefficient()
 	BrakeRatioRight = 0;
 	WheelForwardCoefficient = UKismetMathLibrary::Abs(AxisInputValue);
 }
-
-
-
 

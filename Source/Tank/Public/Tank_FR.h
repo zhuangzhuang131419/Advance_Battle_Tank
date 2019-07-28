@@ -7,10 +7,10 @@
 #include "Tank_FR.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
-class BATTLE_TANK_API ATank_FR : public ATrackedVehicle
+class TANK_API ATank_FR : public ATrackedVehicle
 {
 	GENERATED_BODY()
 public:
@@ -26,9 +26,9 @@ protected:
 public:
 	// 主动轮： 动力输出部件，驱动履带进行转动，带动坦克行驶，转向和刹车等功能也通过主动轮进行差速和制动操作来实现
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* RightSprocket;
+		UStaticMeshComponent* RightSprocket;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* LeftSprocket;
+		UStaticMeshComponent* LeftSprocket;
 
 	// 负重轮：没用动力的从动轮，用于将悬挂承载的车辆重量传导到履带上面，同时规整履带，强迫履带按直线运动
 	TArray<UStaticMeshComponent*> LeftRoadWheels;
@@ -36,37 +36,33 @@ public:
 
 	// 惰轮 用来诱导履带围绕轮组完成转动，并用来控制履带张紧度的从动轮
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* RightIdler;
+		UStaticMeshComponent* RightIdler;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* LeftIdler;
+		UStaticMeshComponent* LeftIdler;
 
 	// 履带
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UInstancedStaticMeshComponent* RightThread;
+		UInstancedStaticMeshComponent* RightThread;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UInstancedStaticMeshComponent* LeftThread;
+		UInstancedStaticMeshComponent* LeftThread;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	TArray<UStaticMeshComponent*> LeftSuspensions;
+		TArray<UStaticMeshComponent*> LeftSuspensions;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	TArray<UStaticMeshComponent*> RightSuspensions;
+		TArray<UStaticMeshComponent*> RightSuspensions;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USplineComponent* RightTrackSpline;
+		USplineComponent* RightTrackSpline;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USplineComponent* LeftTrackSpline;
-	
+		USplineComponent* LeftTrackSpline;
+
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* tail;
+		UStaticMeshComponent* tail;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* Suspensions;
+		UStaticMeshComponent* Suspensions;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* combParts;
+		UStaticMeshComponent* combParts;
 
 	virtual void AnimateWheels() override;
 	virtual void AnimateTreadsSpline() override;
-
-private:
-	int32 wheelsNum = 6;
-	
 };

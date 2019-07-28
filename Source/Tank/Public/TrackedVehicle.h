@@ -19,7 +19,7 @@
 #include "TrackedVehicle.generated.h"
 
 UCLASS()
-class BATTLE_TANK_API ATrackedVehicle : public APawn
+class TANK_API ATrackedVehicle : public APawn
 {
 	GENERATED_BODY()
 
@@ -28,34 +28,34 @@ public:
 	ATrackedVehicle();
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* Body;
+		UStaticMeshComponent* Body;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UArrowComponent* COM;
+		UArrowComponent* COM;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USkeletalMeshComponent* TreadR;
+		USkeletalMeshComponent* TreadR;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USkeletalMeshComponent* TreadL;
+		USkeletalMeshComponent* TreadL;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* WheelSweep;
+		UStaticMeshComponent* WheelSweep;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UStaticMeshComponent* Turrent;
+		UStaticMeshComponent* Turrent;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USpringArmComponent* MainCam;
+		USpringArmComponent* MainCam;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UCameraComponent* Camera;
+		UCameraComponent* Camera;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USkeletalMeshComponent* Cannon;
+		USkeletalMeshComponent* Cannon;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USpringArmComponent* TurrentCam;
+		USpringArmComponent* TurrentCam;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USpringArmComponent* Front;
+		USpringArmComponent* Front;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USpringArmComponent* LookRight;
+		USpringArmComponent* LookRight;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USpringArmComponent* LookLeft;
+		USpringArmComponent* LookLeft;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool SleepMode = false;
+		bool SleepMode = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -74,7 +74,7 @@ public:
 	void ConstructSuspension();
 	void VisualizeCenterOfMass();
 	UFUNCTION(BlueprintImplementableEvent)
-	void CreateMaterialsForSimpleTracks();
+		void CreateMaterialsForSimpleTracks();
 
 	void AddWheelForce(UPrimitiveComponent* Wheel, FVector Force);
 	void AddWheelForceImproved(UPrimitiveComponent* Wheel, FVector Force, FHitResult HitStruct, UPhysicsConstraintComponent* Suspension);
@@ -90,7 +90,7 @@ public:
 	float GetWheelAccelerationFromEngineTorque(float Torque);
 	void ApplyDrag();
 	UFUNCTION(BlueprintImplementableEvent)
-	float GetEngineTorque(float RevolutionPerMinute);
+		float GetEngineTorque(float RevolutionPerMinute);
 	virtual void AnimateWheels();
 	void UpdateAxlsVelocity();
 
@@ -105,7 +105,7 @@ public:
 	void AnimateSprocketOrIdler(UStaticMeshComponent* SprocketOrIdlerComponnet, float TrackAngularVelocity, bool FlipAnimation180Degrees);
 	void ShowSuspensionHandles();
 	UFUNCTION(BlueprintImplementableEvent)
-	void SpawnDust(TArray<FSuspensionInternalProcessing>& SuspensionSide, float TrackLinearVelocity);
+		void SpawnDust(TArray<FSuspensionInternalProcessing>& SuspensionSide, float TrackLinearVelocity);
 
 	bool TraceForSuspension(FVector Start, FVector End, float Radius, OUT FVector Location, OUT FVector ImpactPoint, OUT FVector ImpactNormal, OUT EPhysicalSurface SufaceType, OUT UPrimitiveComponent* Component);
 	void AnimateTreadsMaterial();
@@ -114,10 +114,10 @@ public:
 	void ShiftGear(int32 ShiftUpOrDown);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateAutoGearBox();
+		void UpdateAutoGearBox();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetRemoveAutoGearBoxTimer();
+		void SetRemoveAutoGearBoxTimer();
 
 	void GetThrottleInputForAutoHandling(float InputVehicleLeftRight, float InputVehicleForwardBackward);
 	void GetGearBoxInfo(OUT int32 GearNum, OUT bool ReverseGear, OUT bool Automatic);
@@ -134,131 +134,131 @@ private:
 public:
 	// 履带配置
 	UPROPERTY(EditDefaultsOnly, Category = "Track")
-	float TrackMassKg = 600.f;
+		float TrackMassKg = 600.f;
 
 	// 主动轮配置
 	UPROPERTY(EditDefaultsOnly, Category = "Sprocket")
-	float SprocketMassKg = 65.f;
+		float SprocketMassKg = 65.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Sprocket")
-	float SprocketRadiusCm = 25.f;
+		float SprocketRadiusCm = 25.f;
 
 	// 环境配置
 	UPROPERTY(EditDefaultsOnly, Category = "Environment")
-	float AirDensity = 1.29f;
+		float AirDensity = 1.29f;
 
 	// Drag相关
 	UPROPERTY(EditDefaultsOnly, Category = "Environment")
-	float DragSurfaceArea = 10.f;
+		float DragSurfaceArea = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Environment")
-	float DragCoefficient = 0.8f;
+		float DragCoefficient = 0.8f;
 
 	// Gear配置
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	TArray<float> GearRatios = { 1.15, 2.15, 4.35, 0, 3.81, 1.93, 1 };
+		TArray<float> GearRatios = { 1.15, 2.15, 4.35, 0, 3.81, 1.93, 1 };
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	float DifferentialRatio = 3.5; // 差速比
+		float DifferentialRatio = 3.5; // 差速比
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	float TransmissionEfficiency = 0.9; // 能量传递效率
+		float TransmissionEfficiency = 0.9; // 能量传递效率
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	bool AutoGearBox;
+		bool AutoGearBox;
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	float GearUpShiftPrc = 0.9;
+		float GearUpShiftPrc = 0.9;
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	float GearDownShiftPrc = 0.9;
+		float GearDownShiftPrc = 0.9;
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	float EngineExtraPowerRatio;
+		float EngineExtraPowerRatio;
 
 	// Torque
 	UPROPERTY(EditDefaultsOnly, Category = "Torque")
-	UCurveFloat* EngineTorqueCurve;
+		UCurveFloat* EngineTorqueCurve;
 
 	// 摩擦力
 	UPROPERTY(EditDefaultsOnly, Category = "Friction")
-	float MuXStatic = 1;
+		float MuXStatic = 1;
 	UPROPERTY(EditDefaultsOnly, Category = "Friction")
-	float MuYStatic = 0.85;
+		float MuYStatic = 0.85;
 	UPROPERTY(EditDefaultsOnly, Category = "Friction")
-	float MuXKinetic = 0.5;
+		float MuXKinetic = 0.5;
 	UPROPERTY(EditDefaultsOnly, Category = "Friction")
-	float MuYKinetic = 0.45;
+		float MuYKinetic = 0.45;
 
 	// Spline
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
-	TArray<FVector> SplineCoordinatesRight = {
-		FVector(211, 109, 88),
-		FVector(230, 109, 77.5),
-		FVector(224.5, 109, 46.5),
-		FVector(145, 109, 5),
-		FVector(77, 109, 5),
-		FVector(10, 109, 5),
-		FVector(-56, 109, 5),
-		FVector(-127, 109, 5),
-		FVector(-210, 109, 50),
-		FVector(-180, 109, 72.5),
-		FVector(-127, 109, 69.5),
-		FVector(-56, 109, 69.5),
-		FVector(10, 109, 69.5),
-		FVector(77, 109, 69.5),
-		FVector(145, 109, 69.5),
+		TArray<FVector> SplineCoordinatesRight = {
+			FVector(211, 109, 88),
+			FVector(230, 109, 77.5),
+			FVector(224.5, 109, 46.5),
+			FVector(145, 109, 5),
+			FVector(77, 109, 5),
+			FVector(10, 109, 5),
+			FVector(-56, 109, 5),
+			FVector(-127, 109, 5),
+			FVector(-210, 109, 50),
+			FVector(-180, 109, 72.5),
+			FVector(-127, 109, 69.5),
+			FVector(-56, 109, 69.5),
+			FVector(10, 109, 69.5),
+			FVector(77, 109, 69.5),
+			FVector(145, 109, 69.5),
 	};
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
-	TArray<FVector> SplineCoordinatesLeft = {
-		FVector(211, -109, 88),
-		FVector(230, -109, 77.5),
-		FVector(224.5, -109, 46.5),
-		FVector(145, -109, 5),
-		FVector(77, -109, 5),
-		FVector(10, -109, 5),
-		FVector(-56, -109, 5),
-		FVector(-127, -109, 5),
-		FVector(-210, -109, 50),
-		FVector(-180, -109, 72.5),
-		FVector(-127, -109, 69.5),
-		FVector(-56, -109, 69.5),
-		FVector(10, -109, 69.5),
-		FVector(77, -109, 69.5),
-		FVector(145, -109, 69.5),
+		TArray<FVector> SplineCoordinatesLeft = {
+			FVector(211, -109, 88),
+			FVector(230, -109, 77.5),
+			FVector(224.5, -109, 46.5),
+			FVector(145, -109, 5),
+			FVector(77, -109, 5),
+			FVector(10, -109, 5),
+			FVector(-56, -109, 5),
+			FVector(-127, -109, 5),
+			FVector(-210, -109, 50),
+			FVector(-180, -109, 72.5),
+			FVector(-127, -109, 69.5),
+			FVector(-56, -109, 69.5),
+			FVector(10, -109, 69.5),
+			FVector(77, -109, 69.5),
+			FVector(145, -109, 69.5),
 
 	};
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
-	TArray<FVector> SplineTangents = {
-		FVector(25, 0, 0),
-		FVector(17.5, 0, -22.5),
-		FVector(-25, 0, -22.5),
-		FVector(-74.5, 0, 0),
-		FVector(-67.5, 0, 0),
-		FVector(-66.5, 0, 0),
-		FVector(-66.5, 0, 0),
-		FVector(-80, 0, 0),
-		FVector(0, 0, 80),
-		FVector(0, 0, 0),
-		FVector(100, 0, 0),
-		FVector(68.5, 0, 0),
-		FVector(66.5, 0, 0),
-		FVector(67.5, 0, 0),
-		FVector(55, 0, 0)
+		TArray<FVector> SplineTangents = {
+			FVector(25, 0, 0),
+			FVector(17.5, 0, -22.5),
+			FVector(-25, 0, -22.5),
+			FVector(-74.5, 0, 0),
+			FVector(-67.5, 0, 0),
+			FVector(-66.5, 0, 0),
+			FVector(-66.5, 0, 0),
+			FVector(-80, 0, 0),
+			FVector(0, 0, 80),
+			FVector(0, 0, 0),
+			FVector(100, 0, 0),
+			FVector(68.5, 0, 0),
+			FVector(66.5, 0, 0),
+			FVector(67.5, 0, 0),
+			FVector(55, 0, 0)
 	};
 
 	// Tread
 	UPROPERTY(EditDefaultsOnly, Category = "Tread")
-	float TreadUVTiles = 32.5f;
+		float TreadUVTiles = 32.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Tread")
-	float TreadsOnSide = 64;
+		float TreadsOnSide = 64;
 	UPROPERTY(EditDefaultsOnly, Category = "Tread")
-	float TreadHalfThickness = 2;
+		float TreadHalfThickness = 2;
 
 
 	// Spline
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
-	TArray<FSuspensionSetUp> SuspensionSetUpRight;
+		TArray<FSuspensionSetUp> SuspensionSetUpRight;
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
-	TArray<FSuspensionSetUp> SuspensionSetUpLeft;
+		TArray<FSuspensionSetUp> SuspensionSetUpLeft;
 
 	// Sleep
 	UPROPERTY(EditDefaultsOnly, Category = "Sleep")
-	float SleepVelocity = 5;
+		float SleepVelocity = 5;
 	UPROPERTY(EditDefaultsOnly, Category = "Sleep")
-	float SleepTimerSeconds = 2;
+		float SleepTimerSeconds = 2;
 
 	UPrimitiveComponent* WheelLoc;
 
@@ -296,7 +296,7 @@ public:
 
 	// Friction相关
 	float TotalNumFrictionPoints;
-	
+
 	float MuStatic;
 	float MuKinetic;
 
@@ -347,14 +347,14 @@ public:
 
 
 
-	
+
 
 	// Suspension
 	TArray<UStaticMeshComponent*> SuspensionHandleRight;
 	TArray<UStaticMeshComponent*> SuspensionHandleLeft;
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalRight;
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalLeft;
-	
+
 	float SuspensionLength;
 	float SuspensionNewLength;
 	float SuspensionStiffness;
@@ -372,9 +372,9 @@ public:
 	// Gear齿轮相关
 	int32 currentGear = 1;
 	int32 NeutralGearIndex = 0;
-	
 
-	
+
+
 
 	bool ReverseGear;
 
@@ -403,18 +403,16 @@ public:
 
 
 
-	
+
 
 	// Spline相关
-	
+
 
 	USplineComponent* SplineRightLoc;
 	USplineComponent* SplineLeftLoc;
 	float SplineLengthAtConstruction;
 
-	
+
 	// sleep
 	float SleepDelayTimer;
-
-
 };

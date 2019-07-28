@@ -26,7 +26,7 @@ struct FSuspensionInternalProcessing
 {
 	GENERATED_USTRUCT_BODY()
 
-	FVector RootLoc;
+		FVector RootLoc;
 	FRotator RootRot;
 	float Length = 100;
 	float Radius = 100;
@@ -39,7 +39,7 @@ struct FSuspensionInternalProcessing
 	bool Engaged = false;
 	EPhysicalSurface HitMaterial;
 
-	FSuspensionInternalProcessing(){}
+	FSuspensionInternalProcessing() {}
 
 	FSuspensionInternalProcessing(FVector RootLoc, FRotator RootRot, float Length, float Radius, float Stiffness, float Damping)
 	{
@@ -57,20 +57,22 @@ struct FSuspensionSetUp
 {
 	GENERATED_USTRUCT_BODY()
 
-	FVector RootLoc;
+		FVector RootLoc;
 	FRotator RootRot;
 	float MaxLength = 23;
 	float CollisionRadius = 34;
 	float StiffnessForce = 4000000;
 	float DampingForce = 4000;
 
-	FSuspensionSetUp(){}
+	FSuspensionSetUp() {}
 };
 
 /**
  * 
  */
-class BATTLE_TANK_API GeneralTypes
+class TANK_API GeneralTypes
 {
-	
+public:
+	GeneralTypes();
+	~GeneralTypes();
 };

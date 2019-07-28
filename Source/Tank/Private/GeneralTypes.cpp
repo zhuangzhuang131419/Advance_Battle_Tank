@@ -2,3 +2,11 @@
 
 
 #include "GeneralTypes.h"
+
+GeneralTypes::GeneralTypes()
+{
+}
+
+GeneralTypes::~GeneralTypes()
+{
+}
