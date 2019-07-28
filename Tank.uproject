@@ -5,13 +5,9 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "Battle_Tank",
+			"Name": "Tank",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject"
-			]
+			"LoadingPhase": "Default"
 		}
 	]
 }
