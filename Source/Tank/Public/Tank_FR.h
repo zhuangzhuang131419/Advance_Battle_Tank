@@ -26,9 +26,9 @@ protected:
 public:
 	// 主动轮： 动力输出部件，驱动履带进行转动，带动坦克行驶，转向和刹车等功能也通过主动轮进行差速和制动操作来实现
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* RightSprocket;
+	UStaticMeshComponent* RightSprocket;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* LeftSprocket;
+	UStaticMeshComponent* LeftSprocket;
 
 	// 负重轮：没用动力的从动轮，用于将悬挂承载的车辆重量传导到履带上面，同时规整履带，强迫履带按直线运动
 	TArray<UStaticMeshComponent*> LeftRoadWheels;
@@ -36,33 +36,29 @@ public:
 
 	// 惰轮 用来诱导履带围绕轮组完成转动，并用来控制履带张紧度的从动轮
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* RightIdler;
+	UStaticMeshComponent* RightIdler;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* LeftIdler;
+	UStaticMeshComponent* LeftIdler;
 
 	// 履带
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UInstancedStaticMeshComponent* RightThread;
+	UInstancedStaticMeshComponent* RightTreads;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UInstancedStaticMeshComponent* LeftThread;
+	UInstancedStaticMeshComponent* LeftTreads;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		TArray<UStaticMeshComponent*> LeftSuspensions;
+	USplineComponent* RightTrackSpline;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		TArray<UStaticMeshComponent*> RightSuspensions;
+	USplineComponent* LeftTrackSpline;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		USplineComponent* RightTrackSpline;
+	UStaticMeshComponent* Burrel;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		USplineComponent* LeftTrackSpline;
-
+	UStaticMeshComponent* Suspensions;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* tail;
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* Suspensions;
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		UStaticMeshComponent* combParts;
+	UStaticMeshComponent* combParts;
 
 	virtual void AnimateWheels() override;
 	virtual void AnimateTreadsSpline() override;
+	virtual void RegisterSuspensionHandles() override;
 };

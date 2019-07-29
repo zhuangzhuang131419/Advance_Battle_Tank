@@ -2,6 +2,7 @@
 
 
 #include "Tank_FR.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ATank_FR::ATank_FR()
 {
@@ -9,12 +10,12 @@ ATank_FR::ATank_FR()
 	LeftSprocket = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeftSprocket"));
 	RightIdler = CreateDefaultSubobject<UStaticMeshComponent>(FName("RightIdler"));
 	LeftIdler = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeftIdler"));
-	RightThread = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("RightThread"));
-	LeftThread = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("LeftThread"));
+	RightTreads = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("RightTreads"));
+	LeftTreads = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("LeftTreads"));
 	RightTrackSpline = CreateDefaultSubobject<USplineComponent>(FName("RightTrackSpline"));
 	LeftTrackSpline = CreateDefaultSubobject<USplineComponent>(FName("LeftTrackSpline"));
 
-	tail = CreateDefaultSubobject<UStaticMeshComponent>(FName("tail"));
+	Burrel = CreateDefaultSubobject<UStaticMeshComponent>(FName("Burrel"));
 	Suspensions = CreateDefaultSubobject<UStaticMeshComponent>(FName("Suspensions"));
 	combParts = CreateDefaultSubobject<UStaticMeshComponent>(FName("combParts"));
 
@@ -22,43 +23,131 @@ ATank_FR::ATank_FR()
 	LeftSprocket->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	RightIdler->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LeftIdler->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	RightThread->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	LeftThread->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
+	RightTreads->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
+	LeftTreads->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	RightTrackSpline->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LeftTrackSpline->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	tail->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
+	Burrel->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	Suspensions->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	combParts->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
+
+	Turret->SetRelativeLocation(Body->GetSocketLocation(FName("Turret")));
+	Turret->SetRelativeRotation(Body->GetSocketRotation(FName("Turret")));
+
+	// 
+	TrackMassKg = 400;
+	SprocketMassKg = 65;
+	AirDensity = 1.29;
+	DragSurfaceArea = 10;
+	DragCoefficient = 0.8;
+	SprocketRadiusCm = 24;
+	GearRatios = { 4.35, 0, 3.81, 1.93, 1 };
+	DifferentialRatio = 3.5;
+	TransmissionEfficiency = 0.9;
+	MuXStatic = 1;
+	MuYStatic = 0.85;
+	MuXKinetic = 0.5;
+	MuYKinetic = 0.45;
+	RollingFrictionCoeffient = 0.02;
+	BrakeForce = 30;
+	TreadLength = 972.5;
+	SplineCoordinatesRight = {
+			FVector(230, 109, 94),
+			FVector(253, 109, 65),
+			FVector(230, 109, 33),
+			FVector(175, 109, 5),
+			FVector(113, 109, 5),
+			FVector(54, 109, 5),
+			FVector(-8, 109, 5),
+			FVector(-70, 109, 5),
+			FVector(-135, 109, 5),
+			FVector(-193, 109, 45),
+			FVector(-188, 109, 90),
+			FVector(-135, 109, 85),
+			FVector(-70, 109, 85),
+			FVector(-8, 109, 85),
+			FVector(54, 109, 85),
+			FVector(113, 109, 85),
+			FVector(175, 109, 85),
+	};
+	SplineCoordinatesLeft = {
+			FVector(230, -109, 94),
+			FVector(253, -109, 65),
+			FVector(230, -109, 33),
+			FVector(175, -109, 5),
+			FVector(113, -109, 5),
+			FVector(54, -109, 5),
+			FVector(-8, -109, 5),
+			FVector(-70, -109, 5),
+			FVector(-135, -109, 5),
+			FVector(-193, -109, 45),
+			FVector(-188, -109, 90),
+			FVector(-135, -109, 85),
+			FVector(-70, -109, 85),
+			FVector(-8, -109, 85),
+			FVector(54, -109, 85),
+			FVector(113, -109, 85),
+			FVector(175, -109, 85),
+	};
+	SplineTangents = {
+			FVector(55, 0, 0),
+			FVector(0, 0, -30),
+			FVector(-20, 0, -20),
+			FVector(-80, 0, 0),
+			FVector(0, 0, 0),
+			FVector(-74.5, 0, 0),
+			FVector(-67.5, 0, 0),
+			FVector(-66.5, 0, 0),
+			FVector(-50, 0, 0),
+			FVector(-70, 0, 100),
+			FVector(20, 0, 0),
+			FVector(0, 0, 0),
+			FVector(0, 0, 0),
+			FVector(68.5, 0, 0),
+			FVector(66.5, 0, 0),
+			FVector(67.5, 0, 0),
+			FVector(55, 0, 0)
+	};
+	TreadUVTiles = 20;
+	TreadsOnSide = 90;
+	TreadHalfThickness = 2;
+	SuspensionSetUpRight = {
+		FSuspensionSetUp(FVector(), FRotator(), 15, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 15, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30)
+	};
+	SuspensionSetUpLeft = {
+		FSuspensionSetUp(FVector(), FRotator(), 10, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 30),
+		FSuspensionSetUp(FVector(), FRotator(), 23, 32)
+	};
+	SleepVelocity = 5;
+	SleepTimerSeconds = 2;
+	AutoGearBox = true;
+	GearUpShiftPrc = 0.9;
+	GearDownShiftPrc = 0.05;
+	EngineExtraPowerRatio = 3;
+
+	RegisterSuspensionHandles();
+	ConstructSuspension();
+
+	// Called in blueprint
+	/*Super::BuildTrackSpline(RightTrackSpline, LeftTrackSpline);
+	Super::BuildTreads(RightTrackSpline, LeftTrackSpline, RightTreads, LeftTreads);*/
 }
 
 
 void ATank_FR::BeginPlay()
 {
-	for (auto component : GetComponentsByClass(UStaticMeshComponent::StaticClass()))
-	{
-		if (component->ComponentTags.Contains(FName("Left")))
-		{
-			if (component->ComponentTags.Contains(FName("Suspension")))
-			{
-				LeftSuspensions.Add(Cast<UStaticMeshComponent>(component));
-			}
-			else if (component->ComponentTags.Contains(FName("RoadWheel")))
-			{
-				LeftRoadWheels.Add(Cast<UStaticMeshComponent>(component));
-			}
-		}
-		else if (component->ComponentTags.Contains(FName("Right")))
-		{
-			if (component->ComponentTags.Contains(FName("Suspension")))
-			{
-				RightSuspensions.Add(Cast<UStaticMeshComponent>(component));
-			}
-			else if (component->ComponentTags.Contains(FName("RoadWheel")))
-			{
-				RightRoadWheels.Add(Cast<UStaticMeshComponent>(component));
-			}
-		}
-	}
+	Super::BeginPlay();
 }
 
 void ATank_FR::Tick(float DeltaTime)
@@ -110,5 +199,34 @@ void ATank_FR::AnimateTreadsSpline()
 			SuspensionSetUpLeft,
 			i
 		);
+	}
+}
+
+void ATank_FR::RegisterSuspensionHandles()
+{
+	for (auto component : GetComponentsByClass(UStaticMeshComponent::StaticClass()))
+	{
+		if (component->ComponentTags.Contains(FName("Left")))
+		{
+			if (component->ComponentTags.Contains(FName("Suspension")))
+			{
+				SuspensionHandleLeft.Add(Cast<UStaticMeshComponent>(component));
+			}
+			else if (component->ComponentTags.Contains(FName("RoadWheel")))
+			{
+				LeftRoadWheels.Add(Cast<UStaticMeshComponent>(component));
+			}
+		}
+		else if (component->ComponentTags.Contains(FName("Right")))
+		{
+			if (component->ComponentTags.Contains(FName("Suspension")))
+			{
+				SuspensionHandleRight.Add(Cast<UStaticMeshComponent>(component));
+			}
+			else if (component->ComponentTags.Contains(FName("RoadWheel")))
+			{
+				RightRoadWheels.Add(Cast<UStaticMeshComponent>(component));
+			}
+		}
 	}
 }

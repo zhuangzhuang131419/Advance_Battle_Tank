@@ -19,11 +19,11 @@ ATrackedVehicle::ATrackedVehicle()
 	TreadR = CreateDefaultSubobject<USkeletalMeshComponent>(FName("TreadR"));
 	TreadL = CreateDefaultSubobject<USkeletalMeshComponent>(FName("TreadL"));
 	WheelSweep = CreateDefaultSubobject<UStaticMeshComponent>(FName("WheelSweep"));
-	Turrent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Turrent"));
+	Turret = CreateDefaultSubobject<UStaticMeshComponent>(FName("Turret"));
 	MainCam = CreateDefaultSubobject<USpringArmComponent>(FName("MainCam"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	Cannon = CreateDefaultSubobject<USkeletalMeshComponent>(FName("Cannon"));
-	TurrentCam = CreateDefaultSubobject<USpringArmComponent>(FName("TurrentCam"));
+	TurretCam = CreateDefaultSubobject<USpringArmComponent>(FName("TurretCam"));
 	Front = CreateDefaultSubobject<USpringArmComponent>(FName("Front"));
 	LookRight = CreateDefaultSubobject<USpringArmComponent>(FName("LookRight"));
 	LookLeft = CreateDefaultSubobject<USpringArmComponent>(FName("LookLeft"));
@@ -32,16 +32,19 @@ ATrackedVehicle::ATrackedVehicle()
 	TreadR->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	TreadL->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	WheelSweep->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	Turrent->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	MainCam->AttachToComponent(Turrent, FAttachmentTransformRules::KeepWorldTransform);
+	Turret->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
+	MainCam->AttachToComponent(Turret, FAttachmentTransformRules::KeepWorldTransform);
 	Camera->AttachToComponent(MainCam, FAttachmentTransformRules::KeepWorldTransform);
-	Cannon->AttachToComponent(Turrent, FAttachmentTransformRules::KeepWorldTransform);
-	TurrentCam->AttachToComponent(Cannon, FAttachmentTransformRules::KeepWorldTransform);
+	Cannon->AttachToComponent(Turret, FAttachmentTransformRules::KeepWorldTransform);
+	TurretCam->AttachToComponent(Cannon, FAttachmentTransformRules::KeepWorldTransform);
 	Front->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LookRight->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LookLeft->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 
-	PreCalculateMomentOfInteria();
+	//PreCalculateMomentOfInteria();
+	//VisualizeCenterOfMass();
+	//CreateMaterialsForSimpleTracks();
+	//FindNeutralGearAndSetStartingGear();
 }
 
 // Called when the game starts or when spawned
@@ -55,38 +58,38 @@ void ATrackedVehicle::BeginPlay()
 void ATrackedVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (!PutToSleep())
-	{
-		UpdateThrottle();
-		UpdateWheelsVelocity();
+	//if (!PutToSleep())
+	//{
+	//	UpdateThrottle();
+	//	UpdateWheelsVelocity();
 
-		// TODO
-		// Animate Treads Material
-		// Animate Treads Spline
-		// Animate Treads Instanced Mesh
-		UpdateAxlsVelocity();
-		CalculateEngineAndUpdateDrive();
-		for (size_t i = 0; i < SuspensionsInternalRight.Num(); i++)
-		{
-			CheckWheelCollision(i, SuspensionsInternalRight, ESide::Right);
-		}
+	//	// TODO
+	//	// Animate Treads Material
+	//	// Animate Treads Spline
+	//	// Animate Treads Instanced Mesh
+	//	UpdateAxlsVelocity();
+	//	CalculateEngineAndUpdateDrive();
+	//	for (size_t i = 0; i < SuspensionsInternalRight.Num(); i++)
+	//	{
+	//		CheckWheelCollision(i, SuspensionsInternalRight, ESide::Right);
+	//	}
 
-		for (size_t i = 0; i < SuspensionsInternalLeft.Num(); i++)
-		{
-			CheckWheelCollision(i, SuspensionsInternalLeft, ESide::Left);
-		}
+	//	for (size_t i = 0; i < SuspensionsInternalLeft.Num(); i++)
+	//	{
+	//		CheckWheelCollision(i, SuspensionsInternalLeft, ESide::Left);
+	//	}
 
-		CountFrictionContactPoint(SuspensionsInternalRight);
-		CountFrictionContactPoint(SuspensionsInternalLeft);
+	//	CountFrictionContactPoint(SuspensionsInternalRight);
+	//	CountFrictionContactPoint(SuspensionsInternalLeft);
 
-		ApplyDriveForceAndGetFrictionForceOnSide(SuspensionsInternalRight, DriveRightForce, TrackRightLinearVelocity, TrackFrictionTorqueRight, TrackRollingFrictionTorqueRight);
-		ApplyDriveForceAndGetFrictionForceOnSide(SuspensionsInternalLeft, DriveLeftForce, TrackLeftLinearVelocity, TrackFrictionTorqueLeft, TrackRollingFrictionTorqueLeft);
+	//	ApplyDriveForceAndGetFrictionForceOnSide(SuspensionsInternalRight, DriveRightForce, TrackRightLinearVelocity, TrackFrictionTorqueRight, TrackRollingFrictionTorqueRight);
+	//	ApplyDriveForceAndGetFrictionForceOnSide(SuspensionsInternalLeft, DriveLeftForce, TrackLeftLinearVelocity, TrackFrictionTorqueLeft, TrackRollingFrictionTorqueLeft);
 
-		SpawnDust(SuspensionsInternalRight, TrackRightLinearVelocity);
-		SpawnDust(SuspensionsInternalLeft, TrackLeftLinearVelocity);
+	//	SpawnDust(SuspensionsInternalRight, TrackRightLinearVelocity);
+	//	SpawnDust(SuspensionsInternalLeft, TrackLeftLinearVelocity);
 
-		TotalNumFrictionPoints = 0;
-	}
+	//	TotalNumFrictionPoints = 0;
+	//}
 
 }
 
@@ -97,36 +100,32 @@ void ATrackedVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ATrackedVehicle::BuildTrackSpline(USplineComponent* RightSpline, USplineComponent* LeftSpline, UInstancedStaticMeshComponent* TreadsRight, UInstancedStaticMeshComponent* TreadsLeft)
+void ATrackedVehicle::BuildTrackSpline(USplineComponent * RightSpline, USplineComponent * LeftSpline, UInstancedStaticMeshComponent * TreadsRight, UInstancedStaticMeshComponent * TreadsLefts)
 {
-	SplineRightLoc = RightSpline;
-	SplineLeftLoc = LeftSpline;
-	TreadsRightLoc = TreadsRight;
-	TreadsLeftLoc = TreadsLeft;
-
 	TreadsLastIndex = (int32)TreadsOnSide - 1;
-	SplineRightLoc->SetSplinePoints(SplineCoordinatesRight, ESplineCoordinateSpace::Local);
-	SplineLeftLoc->SetSplinePoints(SplineCoordinatesLeft, ESplineCoordinateSpace::Local);
+	RightSpline->SetSplinePoints(SplineCoordinatesRight, ESplineCoordinateSpace::Local);
+	LeftSpline->SetSplinePoints(SplineCoordinatesLeft, ESplineCoordinateSpace::Local);
 
 	for (size_t i = 0; i < SplineTangents.Num(); i++)
 	{
-		SplineRightLoc->SetTangentAtSplinePoint(i, SplineTangents[i], ESplineCoordinateSpace::Local);
-		SplineLeftLoc->SetTangentAtSplinePoint(i, SplineTangents[i], ESplineCoordinateSpace::Local);
+		LeftSpline->SetTangentAtSplinePoint(i, SplineTangents[i], ESplineCoordinateSpace::Local);
+		RightSpline->SetTangentAtSplinePoint(i, SplineTangents[i], ESplineCoordinateSpace::Local);
 	}
 
 	for (size_t i = 0; i < TreadsLastIndex; i++)
 	{
-		float distance = (SplineRightLoc->GetSplineLength() / TreadsOnSide) * i;
-		FVector location = SplineRightLoc->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
-		FRotator rotation = SplineRightLoc->GetRotationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
-		FVector right = SplineRightLoc->GetRightVectorAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		float distance = (RightSpline->GetSplineLength() / TreadsOnSide) * i;
+		FVector location = RightSpline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		FRotator rotation = RightSpline->GetRotationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		FVector right = RightSpline->GetRightVectorAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
 
 		if (right.Y < 0)
 		{
 			rotation.Roll = 180;
 		}
 
-		TreadsRightLoc->AddInstance(
+		// UE_LOG(LogTemp, Warning, TEXT("%d + Add Right, location: %s, rotation: %s"), i, *location.ToString(), *rotation.ToString());
+		TreadsRight->AddInstance(
 			UKismetMathLibrary::MakeTransform(
 				location,
 				rotation,
@@ -134,30 +133,29 @@ void ATrackedVehicle::BuildTrackSpline(USplineComponent* RightSpline, USplineCom
 			)
 		);
 
-		SplineLengthAtConstruction = SplineRightLoc->GetSplineLength();
+		// SplineLengthAtConstruction = RightSpline->GetSplineLength();
 	}
 
 	for (size_t i = 0; i < TreadsLastIndex; i++)
 	{
-		float distance = (SplineLeftLoc->GetSplineLength() / TreadsOnSide) * i;
-		FVector location = SplineLeftLoc->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
-		FRotator rotation = SplineLeftLoc->GetRotationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
-		FVector right = SplineLeftLoc->GetRightVectorAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		float distance = (LeftSpline->GetSplineLength() / TreadsOnSide) * i;
+		FVector location = LeftSpline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		FRotator rotation = LeftSpline->GetRotationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
+		FVector right = LeftSpline->GetRightVectorAtDistanceAlongSpline(distance, ESplineCoordinateSpace::Local);
 
 		if (right.Y < 0)
 		{
 			rotation.Roll = 180;
 		}
 
-		TreadsLeftLoc->AddInstance(
+		TreadsLefts->AddInstance(
 			UKismetMathLibrary::MakeTransform(
 				location,
 				rotation,
 				FVector(1, 1, 1)
 			)
 		);
-
-		SplineLengthAtConstruction = SplineRightLoc->GetSplineLength();
+		// SplineLengthAtConstruction = SplineRightLoc->GetSplineLength();
 	}
 }
 
@@ -169,9 +167,6 @@ void ATrackedVehicle::PreCalculateMomentOfInteria()
 
 void ATrackedVehicle::ConstructSuspension()
 {
-	//SuspensionSetUpRight.Add(&FSuspensionSetUp());
-	//SuspensionSetUpRight.Add(&FSuspensionSetUp());
-
 	for (size_t i = 0; i < SuspensionHandleRight.Num(); i++)
 	{
 		SuspensionsInternalRight.Add(FSuspensionInternalProcessing(
@@ -200,6 +195,25 @@ void ATrackedVehicle::ConstructSuspension()
 void ATrackedVehicle::VisualizeCenterOfMass()
 {
 	COM->SetWorldLocation(Body->GetCenterOfMass());
+}
+
+void ATrackedVehicle::RegisterSuspensionHandles()
+{
+}
+
+void ATrackedVehicle::FindNeutralGearAndSetStartingGear()
+{
+	for (size_t i = 0; i < GearRatios.Num(); i++)
+	{
+		if (GearRatios[i] == 0)
+		{
+			NeutralGearIndex = i;
+			break;
+		}
+	}
+
+	// We start in first gear in Automatic Gear Box
+	currentGear = AutoGearBox ? NeutralGearIndex + 1 : NeutralGearIndex;
 }
 
 void ATrackedVehicle::AddWheelForce(UPrimitiveComponent* Wheel, FVector Force)
@@ -499,6 +513,16 @@ void ATrackedVehicle::ApplyDrag()
 		* 0.5 * (GetVelocity() * 0.036) * (GetVelocity() * 0.036) * AirDensity * DragSurfaceArea * DragCoefficient * 27.78;
 	Body->AddForce(DragForce);
 
+}
+
+float ATrackedVehicle::GetEngineTorque(float RevolutionPerMinute)
+{
+	float MinTime;
+	float MaxTime;
+	EngineTorqueCurve->GetTimeRange(MinTime, MaxTime);
+	EngineRPM = UKismetMathLibrary::Clamp(RevolutionPerMinute, MinTime, MaxTime);
+	// MaxTorque
+	return EngineTorqueCurve->GetFloatValue(EngineRPM) * 100;
 }
 
 void ATrackedVehicle::AnimateWheels()
@@ -844,6 +868,48 @@ void ATrackedVehicle::ShiftGear(int32 ShiftUpOrDown)
 	{
 		currentGear = UKismetMathLibrary::Clamp(currentGear + ShiftUpOrDown, 0, GearRatios.Num());
 		ReverseGear = currentGear >= NeutralGearIndex ? false : true;
+	}
+}
+
+void ATrackedVehicle::UpdateAutoGearBox()
+{
+	if (Throttle > 0 && AutoGearBox)
+	{
+		float MinTime;
+		float MaxTime;
+		EngineTorqueCurve->GetTimeRange(MinTime, MaxTime);
+		float GearShift = (EngineRPM - MinTime) / (MaxTime - MinTime);
+		if (AxisAngularVelocity > LastAutoGearBoxAxisCheck)
+		{
+			if (GearShift >= GearUpShiftPrc)
+			{
+				if (ReverseGear)
+				{
+					ShiftGear(-1);
+				}
+				else
+				{
+					ShiftGear(1);
+				}
+			}
+		}
+
+		if (AxisAngularVelocity < LastAutoGearBoxAxisCheck)
+		{
+			if (GearShift < GearDownShiftPrc)
+			{
+				if (ReverseGear)
+				{
+					ShiftGear(1);
+				}
+				else
+				{
+					ShiftGear(-1);
+				}
+			}
+		}
+
+		LastAutoGearBoxAxisCheck = AxisAngularVelocity;
 	}
 }
 
