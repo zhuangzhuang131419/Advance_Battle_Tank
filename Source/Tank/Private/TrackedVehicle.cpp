@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMaterialLibrary.h"
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -41,17 +42,19 @@ ATrackedVehicle::ATrackedVehicle()
 	LookRight->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LookLeft->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 
-	//PreCalculateMomentOfInteria();
-	//VisualizeCenterOfMass();
-	//CreateMaterialsForSimpleTracks();
-	//FindNeutralGearAndSetStartingGear();
+	PreCalculateMomentOfInteria();
+	VisualizeCenterOfMass();
+	CreateMaterialsForSimpleTracks();
+	FindNeutralGearAndSetStartingGear();
+	
 }
 
 // Called when the game starts or when spawned
 void ATrackedVehicle::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	// Camera->AttachTo(MainCam, "SpringEndPoint", EAttachLocation::KeepWorldPosition, true);
+	SetRemoveAutoGearBoxTimer(true);
 }
 
 // Called every frame
@@ -97,6 +100,10 @@ void ATrackedVehicle::Tick(float DeltaTime)
 void ATrackedVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ATrackedVehicle::Fire);
+	// PlayerInputComponent->BindAxis("VehicleForwardBackward", this, &ATrackedVehicle::VehicleForwardBackward);
+	// PlayerInputComponent->BindAxis("VehicleRightLeft", this, &ATrackedVehicle::VehicleRightLeft);
 
 }
 
@@ -195,6 +202,17 @@ void ATrackedVehicle::ConstructSuspension()
 void ATrackedVehicle::VisualizeCenterOfMass()
 {
 	COM->SetWorldLocation(Body->GetCenterOfMass());
+}
+
+void ATrackedVehicle::CreateMaterialsForSimpleTracks()
+{
+	if (ensure(Dust))
+	{
+		TreadMaterialRight = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, Dust);
+		TreadMaterialLeft = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, Dust);
+		TreadR->SetMaterial(0, TreadMaterialRight);
+		TreadL->SetMaterial(0, TreadMaterialLeft);
+	}
 }
 
 void ATrackedVehicle::RegisterSuspensionHandles()
@@ -324,6 +342,12 @@ void ATrackedVehicle::CheckWheelCollision(int32 SuspIndex, TArray<FSuspensionInt
 		WheelCollisionNormal = FVector();
 		SuspensionEngaged = false;
 	}
+}
+
+void ATrackedVehicle::Fire()
+{
+	// GetWorld()->SpawnActor<AActor>(ProjectileClass, Cannon->GetSocketTransform(FName("Muzzle")));
+	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 }
 
 void ATrackedVehicle::AddSuspensionForce()
@@ -688,6 +712,31 @@ void ATrackedVehicle::ShowSuspensionHandles()
 	for (size_t i = 0; i < SuspensionHandleLeft.Num(); i++)
 	{
 		SuspensionHandleLeft[i]->SetHiddenInGame(true);
+	}
+}
+
+void ATrackedVehicle::SpawnDust(TArray<FSuspensionInternalProcessing>& SuspensionSide, float TrackLinearVelocity)
+{
+	if (UKismetMathLibrary::RandomFloatInRange(0, 1) > 0.25)
+	{
+		for (auto suspensionSide: SuspensionSide)
+		{
+			if (UKismetMathLibrary::RandomFloatInRange(0, 1) > 0.5
+				&& UKismetMathLibrary::RandomFloatInRange(0, UKismetMathLibrary::NormalizeToRange(TrackLinearVelocity, 0, 300)) > 0.8
+				&& suspensionSide.Engaged
+				&& suspensionSide.HitMaterial == EPhysicalSurface::SurfaceType1
+				&& ensure(DustSmoke))
+			{
+
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					DustSmoke,
+					suspensionSide.WheelCollisionLocation,
+					UKismetMathLibrary::RandomRotator(),
+					true
+				);
+			}
+		}
 	}
 }
 

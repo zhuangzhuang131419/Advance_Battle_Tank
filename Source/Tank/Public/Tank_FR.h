@@ -16,6 +16,8 @@ class TANK_API ATank_FR : public ATrackedVehicle
 public:
 	ATank_FR();
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -54,8 +54,11 @@ public:
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* LookLeft;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool SleepMode = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AActor> ProjectileClass;
 
 protected:
 	// Called when the game starts or when spawned
@@ -77,7 +80,6 @@ public:
 	void ConstructSuspension();
 	UFUNCTION(BlueprintCallable)
 	void VisualizeCenterOfMass();
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void CreateMaterialsForSimpleTracks();
 	UFUNCTION(BlueprintCallable)
 	virtual void RegisterSuspensionHandles();
@@ -111,7 +113,6 @@ public:
 	virtual void AnimateTreadsSpline();
 	void AnimateSprocketOrIdler(UStaticMeshComponent* SprocketOrIdlerComponnet, float TrackAngularVelocity, bool FlipAnimation180Degrees);
 	void ShowSuspensionHandles();
-	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnDust(TArray<FSuspensionInternalProcessing>& SuspensionSide, float TrackLinearVelocity);
 
 	bool TraceForSuspension(FVector Start, FVector End, float Radius, OUT FVector Location, OUT FVector ImpactPoint, OUT FVector ImpactNormal, OUT EPhysicalSurface SufaceType, OUT UPrimitiveComponent* Component);
@@ -122,11 +123,16 @@ public:
 	void UpdateAutoGearBox();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetRemoveAutoGearBoxTimer();
+	void SetRemoveAutoGearBoxTimer(bool bSetTimer);
 
+	UFUNCTION(BlueprintCallable)
 	void GetThrottleInputForAutoHandling(float InputVehicleLeftRight, float InputVehicleForwardBackward);
 	void GetGearBoxInfo(OUT int32 GearNum, OUT bool ReverseGear, OUT bool Automatic);
 	void GetMuFromFrictionElipse(FVector VelocityDirectionNormalized, FVector ForwardVector, float Mu_X_Static, float Mu_Y_Static, float Mu_X_Kinetic, float Mu_Y_Kinetic, OUT float Mu_Static, OUT float Mu_Kinetic);
+
+	//Input
+	// Action
+	void Fire();
 
 private:
 	void AddSuspensionForce();
@@ -150,11 +156,16 @@ public:
 	// 环境配置
 	UPROPERTY(EditDefaultsOnly, Category = "Environment")
 	float AirDensity = 1.29f;
+	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	UMaterialInterface* Dust;
+	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	UParticleSystem* DustSmoke;
+
 
 	// Drag相关
-	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	UPROPERTY(EditDefaultsOnly, Category = "Drag")
 	float DragSurfaceArea = 10.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Environment")
+	UPROPERTY(EditDefaultsOnly, Category = "Drag")
 	float DragCoefficient = 0.8f;
 
 	// Gear配置
@@ -164,8 +175,8 @@ public:
 	float DifferentialRatio = 3.5; // 差速比
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
 	float TransmissionEfficiency = 0.9; // 能量传递效率
-	UPROPERTY(EditDefaultsOnly, Category = "Gear")
-	bool AutoGearBox;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gear")
+	bool AutoGearBox = true; // 坦克无法在false的时候开动
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
 	float GearUpShiftPrc = 0.9;
 	UPROPERTY(EditDefaultsOnly, Category = "Gear")
@@ -247,8 +258,11 @@ public:
 	float WheelAngularVelocity;
 	float WheelLinearVelocity;
 
+	UPROPERTY(BlueprintReadWrite)
 	float WheelRightCoefficient;
+	UPROPERTY(BlueprintReadWrite)
 	float WheelLeftCoefficient;
+	UPROPERTY(BlueprintReadWrite)
 	float WheelForwardCoefficient;
 
 	float WheelLoadN;
@@ -298,21 +312,16 @@ public:
 	// 受力有关
 	FVector DriveRightForce;
 	FVector DriveLeftForce;
-
 	FVector ApplicationForce;
-
 
 	// 转动惯量
 	float MomentInertia;
 
 	// 刹车有关
+	UPROPERTY(BlueprintReadWrite, Category = "Brake")
 	float BrakeRatioRight;
+	UPROPERTY(BlueprintReadWrite, Category = "Brake")
 	float BrakeRatioLeft;
-
-
-
-
-
 
 	// Suspension
 	TArray<UStaticMeshComponent*> SuspensionHandleRight;
@@ -337,21 +346,8 @@ public:
 	// Gear齿轮相关
 	int32 currentGear = 1;
 	int32 NeutralGearIndex = 0;
-
-
-
-
 	bool ReverseGear;
-
-
 	float LastAutoGearBoxAxisCheck;
-
-
-	// Axis相关
-	float AxisInputValue;
-
-
-	int32 index;
 
 	// Tread相关
 
@@ -365,19 +361,20 @@ public:
 	UInstancedStaticMeshComponent* TreadsLeftLoc;
 	int32 TreadsLastIndex = 63;
 
-
-
-
-
-
 	// Spline相关
-
-
 	USplineComponent* SplineRightLoc;
 	USplineComponent* SplineLeftLoc;
 	float SplineLengthAtConstruction;
 
 
-	// sleep
+	// Time
+	UPROPERTY(BlueprintReadWrite, Category = "Timer")
 	float SleepDelayTimer;
+	UPROPERTY(BlueprintReadWrite, Category = "Timer")
+	FTimerHandle AutoGearBoxTimerHandle;
+
+private:
+	// Axis相关
+	float AxisInputValue;
+	int32 index;
 };

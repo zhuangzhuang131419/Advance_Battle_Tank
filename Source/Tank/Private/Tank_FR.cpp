@@ -137,13 +137,15 @@ ATank_FR::ATank_FR()
 	EngineExtraPowerRatio = 3;
 
 	RegisterSuspensionHandles();
-	ConstructSuspension();
-
-	// Called in blueprint
-	/*Super::BuildTrackSpline(RightTrackSpline, LeftTrackSpline);
-	Super::BuildTreads(RightTrackSpline, LeftTrackSpline, RightTreads, LeftTreads);*/
+	ConstructSuspension();	
 }
 
+
+void ATank_FR::OnConstruction(const FTransform & Transform)
+{
+	Super::OnConstruction(Transform);
+	BuildTrackSpline(RightTrackSpline, LeftTrackSpline, RightTreads, LeftTreads);
+}
 
 void ATank_FR::BeginPlay()
 {
