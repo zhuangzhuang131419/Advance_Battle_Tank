@@ -53,6 +53,16 @@ public:
 	USpringArmComponent* LookRight;
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	USpringArmComponent* LookLeft;
+	// 履带
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	UInstancedStaticMeshComponent* RightTreads;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	UInstancedStaticMeshComponent* LeftTreads;
+
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	USplineComponent* RightTrackSpline;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
+	USplineComponent* LeftTrackSpline;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool SleepMode = false;
@@ -254,16 +264,14 @@ public:
 
 	FVector RelativeTrackVelocity;
 
-	// 车轮的速度
-	float WheelAngularVelocity;
-	float WheelLinearVelocity;
 
-	UPROPERTY(BlueprintReadWrite)
-	float WheelRightCoefficient;
-	UPROPERTY(BlueprintReadWrite)
-	float WheelLeftCoefficient;
-	UPROPERTY(BlueprintReadWrite)
-	float WheelForwardCoefficient;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float WheelRightCoefficient = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float WheelLeftCoefficient = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float WheelForwardCoefficient = 50;
 
 	float WheelLoadN;
 
@@ -329,16 +337,7 @@ public:
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalRight;
 	TArray<FSuspensionInternalProcessing> SuspensionsInternalLeft;
 
-	float SuspensionLength;
-	float SuspensionNewLength;
-	float SuspensionStiffness;
-	float SuspensionDamping;
-	float SuspensionPreviousLength;
-	FVector SuspensionWorldX;
-	FVector SuspensionWorldY;
-	FVector SuspensionWorldZ;
-	FVector SuspensionWorldLocation;
-	bool SuspensionEngaged;
+
 	FVector SuspensionForce;
 	float SuspensionTargetVelocity;
 	FVector TotalSuspensionForce;
@@ -376,5 +375,19 @@ public:
 private:
 	// Axis相关
 	float AxisInputValue;
-	int32 index;
+
+	// 车轮的速度
+	float WheelAngularVelocity;
+	float WheelLinearVelocity;
+
+	// Suspension
+	float SuspensionLength;
+	float SuspensionNewLength;
+	float SuspensionStiffness;
+	float SuspensionDamping;
+	float SuspensionPreviousLength;
+	FVector SuspensionWorldX;
+	FVector SuspensionWorldY;
+	FVector SuspensionWorldZ;
+	FVector SuspensionWorldLocation;
 };

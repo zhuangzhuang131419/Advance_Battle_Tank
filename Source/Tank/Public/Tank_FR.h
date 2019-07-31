@@ -42,16 +42,7 @@ public:
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UStaticMeshComponent* LeftIdler;
 
-	// ÂÄ´ø
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UInstancedStaticMeshComponent* RightTreads;
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	UInstancedStaticMeshComponent* LeftTreads;
 
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USplineComponent* RightTrackSpline;
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	USplineComponent* LeftTrackSpline;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	UStaticMeshComponent* Burrel;

@@ -10,10 +10,6 @@ ATank_FR::ATank_FR()
 	LeftSprocket = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeftSprocket"));
 	RightIdler = CreateDefaultSubobject<UStaticMeshComponent>(FName("RightIdler"));
 	LeftIdler = CreateDefaultSubobject<UStaticMeshComponent>(FName("LeftIdler"));
-	RightTreads = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("RightTreads"));
-	LeftTreads = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("LeftTreads"));
-	RightTrackSpline = CreateDefaultSubobject<USplineComponent>(FName("RightTrackSpline"));
-	LeftTrackSpline = CreateDefaultSubobject<USplineComponent>(FName("LeftTrackSpline"));
 
 	Burrel = CreateDefaultSubobject<UStaticMeshComponent>(FName("Burrel"));
 	Suspensions = CreateDefaultSubobject<UStaticMeshComponent>(FName("Suspensions"));
@@ -23,10 +19,6 @@ ATank_FR::ATank_FR()
 	LeftSprocket->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	RightIdler->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	LeftIdler->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	RightTreads->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	LeftTreads->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	RightTrackSpline->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
-	LeftTrackSpline->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	Burrel->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	Suspensions->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
 	combParts->AttachToComponent(Body, FAttachmentTransformRules::KeepWorldTransform);
